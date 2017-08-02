@@ -25,7 +25,11 @@ SECRET_KEY = 'ug@j)(*06v=g9e6gs&gv1e%8sm!4pbs-%2djm@9xdjd!@i_=ad'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '*',
+    'http://recommender.data-mining.vp9.vn',
+    '0.0.0.0'
+]
 
 
 # Application definition

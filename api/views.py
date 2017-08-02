@@ -14,31 +14,28 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 
 from rest_framework.parsers import JSONParser
-
+from HTMLParser import HTMLParser
+import codecs
 import json
 import sys
-sys.path.append('/home/ducthang/Desktop/Comment/comment/CommentAnal/binhnp/spam_detection/libsvm/python/')
+sys.path.append('/home/thuynv/Desktop/CommentDetectionApi/api/binhnp/spam_detection/libsvm/python/')
 from train import *
+from py4j.java_gateway import JavaGateway
 
 @api_view(['GET', 'POST'])
 def hello_world(request):
     if request.method == 'POST':
-        # print "result"
-        # print request.POST.get('_content',"")
-        # data = JSONParser().parse(request)
-        # serializer = CommentSerializer(data = data)
-        # if serializer.is_valid():
-        #     serializer.save()
-        #     return JsonResponse(serializer.data, status=201)
         comment = request.data
         rs = json.dumps(comment)
         comment = json.loads(rs)
-        print comment['comment']
-        #print type(comment)
+        h = HTMLParser()
+        comment = h.unescape(comment['comment'])
+        print comment
         m = svm_load_model('spam.model')
         vocabs = load_vocabs('vocabs.obj')
-        #message = u'fgjghkyhjkdgjdrgjhfgjghk'
-        label = predict(m, vocabs, comment['comment'])
+	comment = token(comment)
+	print comment
+        label = predict(m, vocabs, comment)
         print label
         print type(label)
         print type(request.data)
@@ -49,4 +46,14 @@ def hello_world(request):
             check = 'showFailed'
             print 'not ok'
         return JsonResponse({"result":label[0]})
-    return Response({"message": "Hello, world!"})
+    return Response({"result": ""})
+
+#call py4j token
+def token(comment):
+    print "enter"
+    gateway = JavaGateway()
+    response = gateway.entry_point.getResponse()
+    response.setUETSegmentResponse(comment)
+    comment = response.execute()
+    return comment
+
